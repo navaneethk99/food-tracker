@@ -1,5 +1,6 @@
 import { createGroupAction, joinGroupAction } from "@/app/actions";
 import { GoogleLoginButton } from "@/components/auth/google-login-button";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import { DashboardLive } from "@/components/dashboard/dashboard-live";
 import { DesktopWindow } from "@/components/ui/desktop-window";
 import { getAuthUserId, getDashboardData } from "@/lib/data";
@@ -51,6 +52,7 @@ export default async function DashboardPage({
                   {joinError ? <p className="pixel-panel bg-[#ffdfdf] px-3 py-2 text-lg">{joinError}</p> : null}
                   <button className="pixel-button w-full bg-[#b7f1de]">Join</button>
                 </form>
+                <SignOutButton />
               </>
             ) : (
               <div className="space-y-4">
