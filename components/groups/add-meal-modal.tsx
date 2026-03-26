@@ -4,6 +4,87 @@ import { useRef, useState, useTransition } from "react";
 import { addMealAction } from "@/app/actions";
 
 const mealTypes = ["breakfast", "lunch", "snack", "dinner"] as const;
+const MAX_IMAGE_DIMENSION = 1600;
+const TARGET_IMAGE_SIZE_BYTES = 3 * 1024 * 1024;
+
+function readImageDimensions(file: File) {
+  return new Promise<{ width: number; height: number; image: HTMLImageElement }>((resolve, reject) => {
+    const image = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve({ width: image.width, height: image.height, image });
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Unable to load selected image."));
+    };
+    image.src = objectUrl;
+  });
+}
+
+function canvasToBlob(canvas: HTMLCanvasElement, quality: number) {
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          reject(new Error("Unable to compress selected image."));
+          return;
+        }
+
+        resolve(blob);
+      },
+      "image/jpeg",
+      quality,
+    );
+  });
+}
+
+async function optimizeImageForUpload(file: File) {
+  if (!file.type.startsWith("image/")) {
+    return file;
+  }
+
+  if (file.size <= TARGET_IMAGE_SIZE_BYTES && !/image\/heic|image\/heif/i.test(file.type)) {
+    return file;
+  }
+
+  try {
+    const { width, height, image } = await readImageDimensions(file);
+    const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(width, height));
+    const canvas = document.createElement("canvas");
+
+    canvas.width = Math.max(1, Math.round(width * scale));
+    canvas.height = Math.max(1, Math.round(height * scale));
+
+    const context = canvas.getContext("2d");
+    if (!context) {
+      return file;
+    }
+
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    let quality = 0.85;
+    let blob = await canvasToBlob(canvas, quality);
+
+    while (blob.size > TARGET_IMAGE_SIZE_BYTES && quality > 0.45) {
+      quality -= 0.1;
+      blob = await canvasToBlob(canvas, quality);
+    }
+
+    return new File(
+      [blob],
+      file.name.replace(/\.[^.]+$/, ".jpg"),
+      {
+        type: "image/jpeg",
+        lastModified: Date.now(),
+      },
+    );
+  } catch {
+    return file;
+  }
+}
 
 export function AddMealModal({ groupId }: { groupId: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,8 +117,28 @@ export function AddMealModal({ groupId }: { groupId: string }) {
               className="space-y-4 p-4"
               onSubmit={(event) => {
                 event.preventDefault();
-                const formData = new FormData(event.currentTarget);
+                const sourceFormData = new FormData(event.currentTarget);
                 startTransition(async () => {
+                  const formData = new FormData();
+                  const imageEntries = sourceFormData
+                    .getAll("images")
+                    .filter((value): value is File => value instanceof File && value.size > 0);
+                  const optimizedImages = await Promise.all(imageEntries.map((file) => optimizeImageForUpload(file)));
+
+                  let imageIndex = 0;
+                  for (const [key, value] of sourceFormData.entries()) {
+                    if (key === "images") {
+                      if (value instanceof File && value.size > 0) {
+                        formData.append("images", optimizedImages[imageIndex] ?? value);
+                        imageIndex += 1;
+                      } else {
+                        formData.append("images", value);
+                      }
+                    } else {
+                      formData.append(key, value);
+                    }
+                  }
+
                   await addMealAction(formData);
                   setIsOpen(false);
                 });
