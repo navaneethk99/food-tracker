@@ -40,6 +40,18 @@ function getConvexUrl() {
   return url;
 }
 
+function getImageUrlForItem(imageUrls: string[], index: number) {
+  if (imageUrls.length === 0) {
+    return "";
+  }
+
+  if (imageUrls.length === 1) {
+    return imageUrls[0];
+  }
+
+  return imageUrls[index] ?? imageUrls[0];
+}
+
 export async function createGroupAction(formData: FormData) {
   const viewer = await getViewer();
   if (!viewer) {
@@ -164,7 +176,7 @@ export async function addMealAction(formData: FormData) {
       mealType: parsed.mealType,
       items: analyzedItems.map((item, index) => ({
         name: item.name,
-        image: imageUrls[index] ?? "",
+        image: getImageUrlForItem(imageUrls, index),
         quantity: item.quantity,
         calories: item.calories,
       })),
