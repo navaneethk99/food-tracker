@@ -93,6 +93,7 @@ export function AddMealModal({ groupId }: { groupId: string }) {
   const [isPending, startTransition] = useTransition();
   const nextIdRef = useRef(2);
   const [items, setItems] = useState([{ id: "item-1", name: "" }]);
+  const [selectedImages, setSelectedImages] = useState<Record<string, string>>({});
 
   function addItem() {
     const nextId = `item-${nextIdRef.current++}`;
@@ -214,6 +215,17 @@ export function AddMealModal({ groupId }: { groupId: string }) {
                           type="file"
                           accept="image/*"
                           className="sr-only"
+                          onChange={(event) => {
+                            const file = event.target.files?.[0];
+                            if (!file) {
+                              return;
+                            }
+
+                            setSelectedImages((current) => ({
+                              ...current,
+                              [item.id]: file.name,
+                            }));
+                          }}
                         />
                       </label>
                       <label className="pixel-button bg-[#b7f1de] text-center">
@@ -224,8 +236,24 @@ export function AddMealModal({ groupId }: { groupId: string }) {
                           accept="image/*"
                           capture="environment"
                           className="sr-only"
+                          onChange={(event) => {
+                            const file = event.target.files?.[0];
+                            if (!file) {
+                              return;
+                            }
+
+                            setSelectedImages((current) => ({
+                              ...current,
+                              [item.id]: file.name,
+                            }));
+                          }}
                         />
                       </label>
+                    </div>
+                    <div className="md:col-span-2">
+                      <p className="pixel-panel min-h-11 px-3 py-2 text-sm">
+                        {selectedImages[item.id] ? `Selected image: ${selectedImages[item.id]}` : "No image selected"}
+                      </p>
                     </div>
                   </div>
                 ))}
