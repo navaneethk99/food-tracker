@@ -8,6 +8,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { getViewer } from "@/lib/data";
 import { analyzeMealItems } from "@/lib/gemini";
+import { normalizeMealImage } from "@/lib/image-upload";
 import { deleteMealImages, SupabaseBucketNotFoundError, uploadMealImage } from "@/lib/supabase";
 
 const createGroupSchema = z.object({
@@ -127,10 +128,11 @@ export async function addMealAction(formData: FormData) {
     mealType: formData.get("mealType"),
     itemNames,
   });
+  const normalizedFiles = await Promise.all(files.map((file) => normalizeMealImage(file)));
   const imageFiles = await Promise.all(
-    files.map(async (file) => ({
-      mimeType: file.type || "image/jpeg",
-      data: Buffer.from(await file.arrayBuffer()).toString("base64"),
+    normalizedFiles.map(async (file) => ({
+      mimeType: file.mimeType,
+      data: file.buffer.toString("base64"),
     })),
   );
 
@@ -138,7 +140,7 @@ export async function addMealAction(formData: FormData) {
 
   try {
     imageUrls = await Promise.all(
-      files.map((file) => uploadMealImage(file, parsed.groupId, viewer.id)),
+      normalizedFiles.map((file) => uploadMealImage(file, parsed.groupId, viewer.id)),
     );
   } catch (error) {
     if (error instanceof SupabaseBucketNotFoundError) {

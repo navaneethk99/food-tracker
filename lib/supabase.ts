@@ -25,16 +25,23 @@ function getSupabaseAdmin() {
   });
 }
 
-export async function uploadMealImage(file: File, groupId: string, userId: string) {
+export async function uploadMealImage(
+  file: {
+    buffer: Buffer;
+    fileName: string;
+    mimeType: string;
+  },
+  groupId: string,
+  userId: string,
+) {
   const bucket = process.env.SUPABASE_BUCKET ?? "meal-images";
   const client = getSupabaseAdmin();
-  const path = `${groupId}/${userId}/${Date.now()}-${file.name}`;
-  const arrayBuffer = await file.arrayBuffer();
+  const path = `${groupId}/${userId}/${Date.now()}-${file.fileName}`;
 
   const { error } = await client.storage
     .from(bucket)
-    .upload(path, arrayBuffer, {
-      contentType: file.type || "image/png",
+    .upload(path, file.buffer, {
+      contentType: file.mimeType,
       upsert: false,
     });
 
