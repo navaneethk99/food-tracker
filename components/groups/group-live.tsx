@@ -225,7 +225,7 @@ export function GroupLive({
         userStreaks={groupView.userStreaks}
         groupStreak={groupView.groupStreak}
       />
-      <section className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)] xl:items-start">
+      <section className="space-y-4">
         <div className="pixel-window">
           <div className="pixel-titlebar">
             <span>Meal Calendar</span>
