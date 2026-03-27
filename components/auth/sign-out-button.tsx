@@ -18,6 +18,7 @@ export function SignOutButton() {
         headers: {
           "content-type": "application/json",
         },
+        body: "{}",
       });
 
       if (!response.ok) {
