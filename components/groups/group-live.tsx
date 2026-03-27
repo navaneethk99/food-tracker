@@ -222,8 +222,6 @@ export function GroupLive({
       <StreakIndicator
         members={groupView.members}
         meals={groupView.meals}
-        userStreaks={groupView.userStreaks}
-        groupStreak={groupView.groupStreak}
       />
       <section className="space-y-4">
         <div className="pixel-window">
