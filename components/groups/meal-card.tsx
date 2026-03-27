@@ -2,6 +2,7 @@ import { deleteMealAction } from "@/app/actions";
 import type { AppUser, Meal } from "@/lib/types";
 import { formatTimestamp } from "@/lib/utils";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
+import { ImageLightbox } from "@/components/ui/image-lightbox";
 
 function MealItemMeta({ quantity, calories }: { quantity: string; calories: number }) {
   if (quantity === "Unable to estimate" || calories === 0) {
@@ -34,11 +35,15 @@ export function MealCard({
   canDelete: boolean;
 }) {
   const firstItem = meal.items[0];
+  const totalCalories = meal.items.reduce((sum, item) => sum + item.calories, 0);
 
   return (
     <article className="pixel-window flex h-full min-w-0 flex-col">
       <div className="pixel-titlebar items-start gap-1.5 px-2 py-1.5 sm:items-center sm:gap-3 sm:px-3 sm:py-2">
-        <span className="break-words text-[8px] leading-none sm:text-[10px]">{meal.mealType}</span>
+        <div className="flex min-w-0 flex-wrap items-center gap-1.5 sm:gap-2">
+          <span className="break-words text-[8px] leading-none sm:text-[10px]">{meal.mealType}</span>
+          <span className="break-words text-[8px] leading-none sm:text-[10px]">{totalCalories} cal</span>
+        </div>
         <div className="flex w-full min-w-0 flex-col items-start gap-1 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-2">
           <span className="break-words text-[8px] leading-none sm:text-[10px]">{formatTimestamp(meal.createdAt)}</span>
           {canDelete ? (
@@ -75,11 +80,11 @@ export function MealCard({
         {firstItem ? (
           <div className="pixel-panel flex flex-1 flex-col overflow-hidden">
             {firstItem.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <ImageLightbox
                 src={firstItem.image}
                 alt={firstItem.name}
                 className="h-16 w-full border-b-2 border-[var(--border)] object-cover sm:h-40 sm:border-b-4"
+                overlayImageClassName="max-h-[85vh] max-w-[92vw] object-contain"
               />
             ) : (
               <div className="flex h-16 w-full items-center justify-center border-b-2 border-[var(--border)] bg-[#fff4bf] pixel-label sm:h-40 sm:border-b-4">
