@@ -20,7 +20,7 @@ export function StreakIndicator({
   const activeDateKey = dateKey ?? getDateKey(new Date().toISOString());
 
   return (
-    <details className="pixel-window overflow-hidden">
+    <details open className="pixel-window overflow-hidden">
       <summary className="pixel-titlebar cursor-pointer list-none">
         <span>Member Details</span>
       </summary>
