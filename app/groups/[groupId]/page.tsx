@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { GroupLive } from "@/components/groups/group-live";
-import { getAuthUserId, getGroupView, getViewer } from "@/lib/data";
+import { getAuthUserId, getGroupView } from "@/lib/data";
 
 export default async function GroupPage({
   params,
@@ -8,11 +8,7 @@ export default async function GroupPage({
   params: Promise<{ groupId: string }>;
 }) {
   const { groupId } = await params;
-  const [authUserId, groupView, viewer] = await Promise.all([
-    getAuthUserId(),
-    getGroupView(groupId),
-    getViewer(),
-  ]);
+  const [authUserId, groupView] = await Promise.all([getAuthUserId(), getGroupView(groupId)]);
 
   if (!groupView || !authUserId) {
     notFound();
@@ -23,7 +19,6 @@ export default async function GroupPage({
       <GroupLive
         authUserId={authUserId}
         groupId={groupId}
-        viewerId={viewer?.id ?? null}
         initialGroupView={groupView}
       />
     </main>

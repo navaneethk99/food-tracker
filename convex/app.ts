@@ -143,6 +143,7 @@ export const getDashboardData = query({
         return {
           id: group._id,
           name: group.name,
+          createdBy: group.createdBy,
           inviteCode: group.inviteCode,
           members,
           mealsToday: mealsToday.length,

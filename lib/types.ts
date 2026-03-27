@@ -10,6 +10,7 @@ export type AppUser = {
 export type DashboardGroup = {
   id: string;
   name: string;
+  createdBy: string;
   inviteCode: string;
   members: AppUser[];
   mealsToday: number;

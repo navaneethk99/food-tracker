@@ -1,37 +1,20 @@
+import { convexBetterAuthNextJs } from "@convex-dev/better-auth/nextjs";
 import { getConvexSiteUrl } from "@/lib/auth";
 
-async function proxy(request: Request) {
-  const requestUrl = new URL(request.url);
-  const targetUrl = `${getConvexSiteUrl()}${requestUrl.pathname}${requestUrl.search}`;
-  const headers = new Headers(request.headers);
-  const hasBody = request.method !== "GET" && request.method !== "HEAD";
-  const requestInit: RequestInit & { duplex?: "half" } = {
-    method: request.method,
-    headers,
-    body: hasBody ? request.body : undefined,
-    redirect: "manual",
-  };
-  headers.set("accept-encoding", "identity");
-  headers.set("host", new URL(getConvexSiteUrl()).host);
+function getConvexUrl() {
+  const url = process.env.NEXT_PUBLIC_CONVEX_URL ?? process.env.NEXT_PUBLIC_CONVEX_SITE_URL;
 
-  if (hasBody) {
-    requestInit.duplex = "half";
+  if (!url) {
+    throw new Error("Missing NEXT_PUBLIC_CONVEX_URL or NEXT_PUBLIC_CONVEX_SITE_URL.");
   }
 
-  const response = await fetch(
-    new Request(targetUrl, requestInit),
-  );
-
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: response.headers,
-  });
+  return url;
 }
 
-export const GET = proxy;
-export const POST = proxy;
-export const PUT = proxy;
-export const PATCH = proxy;
-export const DELETE = proxy;
-export const OPTIONS = proxy;
+const authHandler = convexBetterAuthNextJs({
+  convexUrl: getConvexUrl(),
+  convexSiteUrl: getConvexSiteUrl(),
+}).handler;
+
+export const GET = authHandler.GET;
+export const POST = authHandler.POST;

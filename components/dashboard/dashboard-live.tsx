@@ -1,8 +1,10 @@
 "use client";
 
+import { deleteGroupAction } from "@/app/actions";
 import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import type { DashboardData } from "@/lib/types";
 
 export function DashboardLive({
@@ -44,6 +46,11 @@ export function DashboardLive({
             <Link href={`/groups/${group.id}`} className="pixel-button bg-[#ffe58f]">
               Open Group
             </Link>
+            <form action={deleteGroupAction.bind(null, group.id)}>
+              <ConfirmSubmitButton confirmMessage="Delete this group?" className="pixel-button bg-[#ffb7df]">
+                Delete Group
+              </ConfirmSubmitButton>
+            </form>
           </div>
         </article>
       ))}
