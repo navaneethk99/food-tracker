@@ -49,8 +49,7 @@ export function GroupDayLive({
       <StreakIndicator
         members={groupView.members}
         meals={groupView.meals}
-        userStreaks={groupView.userStreaks}
-        groupStreak={groupView.groupStreak}
+        dateKey={dateKey}
       />
       <section className="space-y-4">
         <details className="pixel-window overflow-hidden">

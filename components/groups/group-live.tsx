@@ -218,12 +218,10 @@ export function GroupLive({
 
   return (
     <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
-      <GroupHeader group={groupView.group} />
+      <GroupHeader group={groupView.group} groupStreak={groupView.groupStreak} />
       <StreakIndicator
         members={groupView.members}
         meals={groupView.meals}
-        userStreaks={groupView.userStreaks}
-        groupStreak={groupView.groupStreak}
       />
       <section className="space-y-4">
         <div className="pixel-window">
