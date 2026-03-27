@@ -39,7 +39,7 @@ export function GroupDayLive({
 
   return (
     <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
-      <GroupHeader group={groupView.group} />
+      {/*<GroupHeader group={groupView.group} />*/}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link href={`/groups/${groupView.group.id}`} className="pixel-button bg-[#c6b4ff]">
           Back To Calendar
