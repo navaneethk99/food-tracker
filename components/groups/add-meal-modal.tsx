@@ -92,17 +92,32 @@ export function AddMealModal({ groupId }: { groupId: string }) {
   const [isMealTypeOpen, setIsMealTypeOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const nextIdRef = useRef(2);
-  const [items, setItems] = useState([{ id: "item-1", name: "" }]);
+  const [items, setItems] = useState([{ id: "item-1" }]);
   const [selectedImages, setSelectedImages] = useState<Record<string, string>>({});
+
+  function resetForm() {
+    setMealType("breakfast");
+    setIsMealTypeOpen(false);
+    nextIdRef.current = 2;
+    setItems([{ id: "item-1" }]);
+    setSelectedImages({});
+  }
 
   function addItem() {
     const nextId = `item-${nextIdRef.current++}`;
-    setItems((current) => [...current, { id: nextId, name: "" }]);
+    setItems((current) => [...current, { id: nextId }]);
   }
 
   return (
     <>
-      <button type="button" className="pixel-button bg-[#b7f1de]" onClick={() => setIsOpen(true)}>
+      <button
+        type="button"
+        className="pixel-button bg-[#b7f1de]"
+        onClick={() => {
+          resetForm();
+          setIsOpen(true);
+        }}
+      >
         + Add Meal
       </button>
       {isOpen ? (
@@ -110,7 +125,14 @@ export function AddMealModal({ groupId }: { groupId: string }) {
           <div className="pixel-window max-h-[92vh] w-full max-w-2xl overflow-y-auto">
             <div className="pixel-titlebar">
               <span>Upload Meal</span>
-              <button type="button" className="pixel-button bg-[#ffb7df] px-3 py-2" onClick={() => setIsOpen(false)}>
+              <button
+                type="button"
+                className="pixel-button bg-[#ffb7df] px-3 py-2"
+                onClick={() => {
+                  resetForm();
+                  setIsOpen(false);
+                }}
+              >
                 X
               </button>
             </div>
@@ -141,6 +163,7 @@ export function AddMealModal({ groupId }: { groupId: string }) {
                   }
 
                   await addMealAction(formData);
+                  resetForm();
                   setIsOpen(false);
                 });
               }}
@@ -198,14 +221,6 @@ export function AddMealModal({ groupId }: { groupId: string }) {
                       name="itemNames"
                       placeholder={`Food Item ${index + 1}`}
                       className="pixel-input bg-white"
-                      value={item.name}
-                      onChange={(event) =>
-                        setItems((current) =>
-                          current.map((entry) =>
-                            entry.id === item.id ? { ...entry, name: event.target.value } : entry,
-                          ),
-                        )
-                      }
                     />
                     <div className="grid gap-2 sm:grid-cols-2">
                       <label className="pixel-button bg-white text-center">
